@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Child Health Nursing - Part 2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f7f0;
+    padding: 16px;
+    color: #1a1a1a;
+  }
+  .header {
+    background: #1a4a1a;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 12px 12px 0 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .subheader {
+    background: #2d6a2d;
+    color: #d4edda;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+  .info-bar {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    border-top: none;
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .badge {
+    background: white;
+    border: 1px solid #81c784;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2d6a2d;
+  }
+  .badge.red { border-color: #e57373; color: #c62828; }
+  .badge.orange { border-color: #ffb74d; color: #e65100; }
+  .timer-bar {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-top: none;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  #timer { font-size: 1.2rem; font-weight: 700; color: #e65100; }
+  .start-btn {
+    background: #2d6a2d;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .start-btn:hover { background: #1a4a1a; }
+  .questions-area { margin-top: 12px; display: flex; flex-direction: column; gap: 14px; }
+  .q-card {
+    background: white;
+    border: 1px solid #c8e6c9;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .q-card.answered { border-color: #81c784; }
+  .q-top {
+    background: #f1f8e9;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1b5e20;
+    display: flex;
+    gap: 8px;
+  }
+  .q-num {
+    background: #2d6a2d;
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .options { padding: 10px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .opt:hover { background: #f1f8e9; border-color: #a5d6a7; }
+  .opt.selected { background: #e8f5e9; border-color: #43a047; font-weight: 600; }
+  .opt.correct { background: #e8f5e9; border-color: #2e7d32; }
+  .opt.wrong { background: #ffebee; border-color: #e53935; }
+  .opt.reveal-correct { background: #e8f5e9; border-color: #2e7d32; }
+  .opt-letter {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 700;
+    flex-shrink: 0; color: #555;
+  }
+  .opt.selected .opt-letter { background: #43a047; color: white; }
+  .opt.correct .opt-letter, .opt.reveal-correct .opt-letter { background: #2e7d32; color: white; }
+  .opt.wrong .opt-letter { background: #e53935; color: white; }
+  .submit-area { margin-top: 20px; text-align: center; }
+  .submit-btn {
+    background: #1a4a1a; color: white;
+    border: none; padding: 14px 40px;
+    border-radius: 30px; font-size: 1rem;
+    font-weight: 700; cursor: pointer;
+  }
+  .submit-btn:hover { background: #0d2e0d; }
+  .submit-btn:disabled { background: #aaa; cursor: not-allowed; }
+  .result-card {
+    display: none;
+    background: white;
+    border: 2px solid #2d6a2d;
+    border-radius: 14px;
+    padding: 24px;
+    margin-top: 20px;
+    text-align: center;
+  }
+  .result-card.show { display: block; }
+  .result-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+  .result-title.pass { color: #2e7d32; }
+  .result-title.fail { color: #c62828; }
+  .score-grid {
+    display: grid; grid-template-columns: repeat(2,1fr);
+    gap: 10px; margin: 16px 0;
+  }
+  .score-item {
+    background: #f1f8e9;
+    border: 1px solid #c8e6c9;
+    border-radius: 10px; padding: 12px 8px;
+  }
+  .score-item .val { font-size: 1.5rem; font-weight: 800; color: #1b5e20; }
+  .score-item .lbl { font-size: 0.75rem; color: #666; margin-top: 2px; }
+  .score-item.neg .val { color: #c62828; }
+  .score-item.final .val { color: #1565c0; }
+  .retry-btn {
+    background: #2d6a2d; color: white;
+    border: none; padding: 10px 28px;
+    border-radius: 20px; font-size: 0.9rem;
+    font-weight: 600; cursor: pointer; margin-top: 8px;
+  }
+  .explanation {
+    display: none;
+    background: #f9fbe7;
+    border-top: 1px solid #dce775;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #33691e;
+    line-height: 1.6;
+  }
+  .explanation.show { display: block; }
+  .exp-label { font-weight: 700; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">Child Health Nursing</div>
+<div class="subheader">Topic: Growth & Development — Part 2</div>
+<div class="info-bar">
+  <span class="badge">📋 20 Questions</span>
+  <span class="badge">✅ +1 Correct</span>
+  <span class="badge red">❌ −⅓ Wrong</span>
+  <span class="badge orange">🎯 Qualify: 17/20</span>
+</div>
+<div class="timer-bar">
+  <div>⏱️ Time: <span id="timer">20:00</span></div>
+  <button class="start-btn" id="startBtn" onclick="startTimer()">▶ Start Test</button>
+</div>
+
+<div class="questions-area" id="questionsArea"></div>
+<div class="submit-area">
+  <button class="submit-btn" id="submitBtn" onclick="submitTest()" disabled>Submit Test</button>
+</div>
+<div class="result-card" id="resultCard"></div>
+
+<script>
+const questions = [
+  {
+    q: "According to Piaget, which stage involves object permanence development?",
+    opts: ["Preoperational", "Sensorimotor", "Concrete Operational", "Formal Operational"],
+    ans: 1,
+    exp: "Sensorimotor stage (0–2 years): Object permanence (understanding objects exist even when not visible) develops around 8–12 months."
+  },
+  {
+    q: "Piaget's Preoperational stage occurs between ages:",
+    opts: ["0–2 years", "2–7 years", "7–11 years", "11+ years"],
+    ans: 1,
+    exp: "Preoperational stage: 2–7 years. Child uses symbols/language but thinking is egocentric and lacks logic."
+  },
+  {
+    q: "Egocentrism is a key feature of which of Piaget's stages?",
+    opts: ["Sensorimotor", "Preoperational", "Concrete Operational", "Formal Operational"],
+    ans: 1,
+    exp: "Egocentrism (inability to see others' perspectives) is characteristic of the Preoperational stage (2–7 years)."
+  },
+  {
+    q: "Conservation of matter is mastered in which Piagetian stage?",
+    opts: ["Sensorimotor", "Preoperational", "Concrete Operational", "Formal Operational"],
+    ans: 2,
+    exp: "Concrete Operational stage (7–11 years): Children understand conservation — quantity doesn't change despite shape changes."
+  },
+  {
+    q: "Abstract thinking and hypothetical reasoning develop in Piaget's:",
+    opts: ["Preoperational stage", "Concrete Operational stage", "Formal Operational stage", "Sensorimotor stage"],
+    ans: 2,
+    exp: "Formal Operational stage (11+ years): adolescents develop abstract, logical, and hypothetical thinking."
+  },
+  {
+    q: "A child speaks first words (mama, dada) at approximately:",
+    opts: ["6 months", "9 months", "12 months", "18 months"],
+    ans: 2,
+    exp: "First meaningful words appear around 12 months. At 6 months, babbling begins. At 18 months, vocabulary is ~10–20 words."
+  },
+  {
+    q: "Two-word sentences (telegraphic speech) typically begin at age:",
+    opts: ["12 months", "18 months", "2 years", "3 years"],
+    ans: 2,
+    exp: "Two-word combinations (e.g., 'mama go', 'more milk') begin around 2 years. By 3 years, child uses 3–4 word sentences."
+  },
+  {
+    q: "At what age does a child have a vocabulary of approximately 900 words?",
+    opts: ["2 years", "3 years", "4 years", "5 years"],
+    ans: 1,
+    exp: "By 3 years, a child typically has a vocabulary of around 900 words and speaks in simple sentences."
+  },
+  {
+    q: "Stranger anxiety typically develops at:",
+    opts: ["3 months", "6 months", "8–9 months", "12 months"],
+    ans: 2,
+    exp: "Stranger anxiety (fear of unfamiliar people) develops around 8–9 months, indicating attachment formation."
+  },
+  {
+    q: "According to Erikson, the psychosocial crisis of infancy (0–1 year) is:",
+    opts: ["Autonomy vs Shame", "Trust vs Mistrust", "Initiative vs Guilt", "Industry vs Inferiority"],
+    ans: 1,
+    exp: "Trust vs Mistrust (0–1 year): Consistent caregiving leads to trust. Inconsistent care leads to mistrust of the world."
+  },
+  {
+    q: "Erikson's stage 'Autonomy vs Shame and Doubt' corresponds to age:",
+    opts: ["0–1 year", "1–3 years", "3–6 years", "6–12 years"],
+    ans: 1,
+    exp: "Autonomy vs Shame (1–3 years/Toddler): Child develops independence. Overly controlled child develops shame/doubt."
+  },
+  {
+    q: "A preschool child (3–6 years) faces which Erikson crisis?",
+    opts: ["Trust vs Mistrust", "Autonomy vs Shame", "Initiative vs Guilt", "Industry vs Inferiority"],
+    ans: 2,
+    exp: "Initiative vs Guilt (3–6 years): Child takes initiative in play/activities. Excessive criticism leads to guilt."
+  },
+  {
+    q: "Erikson's 'Industry vs Inferiority' stage occurs in:",
+    opts: ["Toddlers (1–3 yr)", "Preschool (3–6 yr)", "School age (6–12 yr)", "Adolescence (12–18 yr)"],
+    ans: 2,
+    exp: "Industry vs Inferiority (6–12 years): Child learns skills and competence. Failure leads to feelings of inferiority."
+  },
+  {
+    q: "Identity vs Role Confusion in Erikson's theory is the crisis of:",
+    opts: ["School age", "Adolescence", "Young adulthood", "Middle age"],
+    ans: 1,
+    exp: "Identity vs Role Confusion (12–18 years/Adolescence): Teen explores identity. Failure leads to role confusion."
+  },
+  {
+    q: "Parallel play (playing alongside but not with other children) is seen in:",
+    opts: ["Infants", "Toddlers (1–3 yr)", "Preschoolers (3–6 yr)", "School age"],
+    ans: 1,
+    exp: "Parallel play is characteristic of toddlers. They play side by side with similar toys but independently."
+  },
+  {
+    q: "Cooperative play (playing together with rules) begins in:",
+    opts: ["Infants", "Toddlers", "Preschoolers", "School age children"],
+    ans: 3,
+    exp: "Cooperative play with rules and goals starts in school-age children (6+ years). Preschoolers do associative play."
+  },
+  {
+    q: "The term 'Animism' in Piaget's preoperational stage means:",
+    opts: ["Fear of animals", "Giving life to inanimate objects", "Unable to conserve", "Symbolic thinking"],
+    ans: 1,
+    exp: "Animism: Preoperational children believe inanimate objects (toys, clouds) have feelings and are alive."
+  },
+  {
+    q: "Social smile (smiling in response to a face) appears at:",
+    opts: ["1 month", "2 months", "4 months", "6 months"],
+    ans: 1,
+    exp: "Social smile appears at 2 months in response to a human face/voice. Reflexive smile is present from birth."
+  },
+  {
+    q: "Which theorist described 8 stages of psychosocial development across the lifespan?",
+    opts: ["Piaget", "Freud", "Erikson", "Vygotsky"],
+    ans: 2,
+    exp: "Erik Erikson described 8 psychosocial stages from infancy to old age, each with a specific crisis/virtue."
+  },
+  {
+    q: "Separation anxiety is most intense at which age?",
+    opts: ["4–6 months", "8–18 months", "2–3 years", "4–5 years"],
+    ans: 1,
+    exp: "Separation anxiety peaks between 8–18 months. It indicates healthy attachment. It lessens as object permanence strengthens."
+  }
+];
+
+let answers = new Array(20).fill(null);
+let submitted = false;
+let timerInterval = null;
+let seconds = 1200;
+
+function buildQuestions() {
+  const area = document.getElementById('questionsArea');
+  area.innerHTML = '';
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `card-${i}`;
+    const letters = ['A','B','C','D'];
+    let optsHtml = q.opts.map((o, j) => `
+      <div class="opt" id="opt-${i}-${j}" onclick="selectOpt(${i},${j})">
+        <div class="opt-letter">${letters[j]}</div>
+        <span>${o}</span>
+      </div>`).join('');
+    card.innerHTML = `
+      <div class="q-top">
+        <div class="q-num">${i+1}</div>
+        <div>${q.q}</div>
+      </div>
+      <div class="options">${optsHtml}</div>
+      <div class="explanation" id="exp-${i}">
+        <div class="exp-label">📖 Explanation:</div>${q.exp}
+      </div>`;
+    area.appendChild(card);
+  });
+}
+
+function selectOpt(qi, oi) {
+  if (submitted) return;
+  const prev = answers[qi];
+  if (prev !== null) document.getElementById(`opt-${qi}-${prev}`).classList.remove('selected');
+  answers[qi] = oi;
+  document.getElementById(`opt-${qi}-${oi}`).classList.add('selected');
+  document.getElementById(`card-${qi}`).classList.add('answered');
+  document.getElementById('submitBtn').disabled = false;
+}
+
+function startTimer() {
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startBtn').textContent = '⏳ Running';
+  timerInterval = setInterval(() => {
+    seconds--;
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+    if (seconds <= 60) document.getElementById('timer').style.color = '#c62828';
+    if (seconds <= 0) { clearInterval(timerInterval); submitTest(); }
+  }, 1000);
+}
+
+function submitTest() {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+  document.getElementById('submitBtn').disabled = true;
+  let correct = 0, wrong = 0, skipped = 0;
+  questions.forEach((q, i) => {
+    const sel = answers[i];
+    if (sel === null) { skipped++; return; }
+    document.querySelectorAll(`#card-${i} .opt`).forEach(o => o.style.cursor = 'default');
+    if (sel === q.ans) {
+      correct++;
+      document.getElementById(`opt-${i}-${sel}`).classList.add('correct');
+    } else {
+      wrong++;
+      document.getElementById(`opt-${i}-${sel}`).classList.add('wrong');
+      document.getElementById(`opt-${i}-${q.ans}`).classList.add('reveal-correct');
+    }
+    document.getElementById(`exp-${i}`).classList.add('show');
+  });
+  const score = correct - (wrong / 3);
+  const rounded = Math.round(score * 100) / 100;
+  const pass = rounded >= 17;
+  const rc = document.getElementById('resultCard');
+  rc.classList.add('show');
+  rc.innerHTML = `
+    <div class="result-title ${pass ? 'pass' : 'fail'}">${pass ? '🎉 PASSED!' : '❌ Not Qualified'}</div>
+    <div style="color:#555;font-size:0.85rem;margin-bottom:12px;">Qualify marks: 17 / 20</div>
+    <div class="score-grid">
+      <div class="score-item"><div class="val">${correct}</div><div class="lbl">✅ Correct (+${correct})</div></div>
+      <div class="score-item neg"><div class="val">${wrong}</div><div class="lbl">❌ Wrong (−${(wrong/3).toFixed(2)})</div></div>
+      <div class="score-item"><div class="val">${skipped}</div><div class="lbl">⬜ Skipped</div></div>
+      <div class="score-item final"><div class="val">${rounded}</div><div class="lbl">🏆 Final Score</div></div>
+    </div>
+    <div style="font-size:0.82rem;color:#666;margin-bottom:12px;">Accuracy: ${Math.round(correct/20*100)}% | +1 correct, −⅓ wrong</div>
+    <button class="retry-btn" onclick="retryTest()">🔄 Retry Test</button>`;
+  rc.scrollIntoView({ behavior: 'smooth' });
+}
+
+function retryTest() {
+  answers = new Array(20).fill(null);
+  submitted = false;
+  seconds = 1200;
+  clearInterval(timerInterval);
+  document.getElementById('timer').textContent = '20:00';
+  document.getElementById('timer').style.color = '#e65100';
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('startBtn').textContent = '▶ Start Test';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('resultCard').classList.remove('show');
+  buildQuestions();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildQuestions();
+</script>
+</body>
+</html>
